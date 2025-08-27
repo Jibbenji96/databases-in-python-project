@@ -22,3 +22,12 @@ def test_get_all_records(db_connection):
         Album(12, 'Ring Ring', 1973, 2),
     ]
 
+def test_find_specified_record(db_connection):
+    db_connection.seed("seeds/music_library.sql")
+    repository = AlbumRepository(db_connection)
+
+    album = repository.find(1)
+
+    assert album == Album(1, 'Doolittle', 1989, 1)
+
+
