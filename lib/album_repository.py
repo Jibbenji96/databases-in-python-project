@@ -16,9 +16,7 @@ class AlbumRepository:
         return albums
     
     def find(self, id):
-        rows = self._connection.execute(f"SELECT * FROM albums WHERE id = {id}")
-        # specified_album = []
-        # specified_album = [Album(d['id'], d['title'], d['release_year'], d['artist_id']) for d in specified_row]
+        rows = self._connection.execute("SELECT * FROM albums WHERE id = %s", [id])
         row = rows[0]  
         if row is None:
             return None
@@ -33,4 +31,18 @@ class AlbumRepository:
         #     specified_album.append(item)
         
         # return specified_album
+
+    def create(self, title, release_year, artist_id):
+        artist_exists = self._connection.execute(
+            "SELECT EXISTS(SELECT 1 FROM artists WHERE id = %s)", 
+            [artist_id]
+        )[0]['exists']
         
+        if not artist_exists:
+            raise Exception(f"Artist with id {artist_id} not in music library.")
+        
+        self._connection.execute("INSERT INTO albums (title, release_year, artist_id) VALUES (%s, %s, %s)",
+            [title, release_year, artist_id])
+        
+    def delete(self, id):
+        self._connection.execute("DELETE FROM albums WHERE id = %s", [id])
